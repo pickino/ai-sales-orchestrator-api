@@ -1,0 +1,38 @@
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Logs and Outputs
+*.log
+*.txt
+logs/
+uvicorn_output.txt
+fastapi_run_output.txt
+uvicorn_error.txt
+ai-studio-export-*.txt
+
+# Local storage / images
+storage/
+*.png
+*.jpg
+*.jpeg
+*.webp
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Gemini CLI / Agents
+.gemini/
+.agents/

@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lead Capture Form Standalone</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            background-color: #f3f4f6;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- This matches the structure inside ChatMessage.vue -->
+    <div class="max-w-xs w-full bg-[#ddd2f3] rounded-lg p-4 shadow-lg">
+        <p class="text-sm text-gray-800 mb-3 font-medium">Please provide your details so we can assist you better.</p>
+        
+        <!-- Lead Form Container -->
+        <div class="p-3 bg-white/10 rounded-lg border border-white/20">
+            <form id="lead-form" class="space-y-2">
+                <input 
+                    name="name" 
+                    required 
+                    type="text" 
+                    placeholder="Your Name" 
+                    class="w-full text-xs rounded border-none bg-white text-gray-800 p-2 focus:ring-1 focus:ring-purple-400 outline-none" 
+                />
+                <input 
+                    name="email" 
+                    required 
+                    type="email" 
+                    placeholder="Your Email" 
+                    class="w-full text-xs rounded border-none bg-white text-gray-800 p-2 focus:ring-1 focus:ring-purple-400 outline-none" 
+                />
+                <input 
+                    name="phone" 
+                    type="text" 
+                    placeholder="Your Phone (optional)" 
+                    class="w-full text-xs rounded border-none bg-white text-gray-800 p-2 focus:ring-1 focus:ring-purple-400 outline-none" 
+                />
+                <button 
+                    type="submit" 
+                    id="submit-btn"
+                    class="w-full bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold py-2 rounded transition disabled:opacity-50"
+                >
+                    Submit
+                </button>
+            </form>
+            <div id="success-msg" class="hidden mt-2 text-xs text-green-700 font-bold text-center">
+                ✅ Thank you! Your details have been sent.
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const form = document.getElementById('lead-form');
+        const submitBtn = document.getElementById('submit-btn');
+        const successMsg = document.getElementById('success-msg');
+
+        // Replace with your actual backend URL
+        const API_URL = 'https://chat.test/api/submit-lead';
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = new FormData(form);
+            const data = {
+                name: formData.get('name'),
+                email: formData.get('email'),
+                phone: formData.get('phone'),
+                // These would normally come from the chat context
+                case_summary: "Standalone form submission",
+                conversation_id: null, 
+                visitor_id: localStorage.getItem('chatbot_visitor_id') || 'standalone-visitor'
+            };
+
+            submitBtn.disabled = true;
+            submitBtn.innerText = 'Sending...';
+
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                if (response.ok) {
+                    form.classList.add('hidden');
+                    successMsg.classList.remove('hidden');
+                } else {
+                    alert('Submission failed. Please try again.');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Connection error.');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerText = 'Submit';
+            }
+        });
+    </script>
+</body>
+</html>

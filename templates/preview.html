@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chatbot Widget Preview</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <style>
+        body { margin: 0; padding: 0; height: 100vh; overflow: hidden; background-color: #e5e7eb; font-family: sans-serif; }
+        #bg-image-container { width: 100%; height: 100%; position: absolute; top: 0; left: 0; z-index: 1; }
+        .chatbot-container {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            z-index: 2147483647;
+            width: 21rem;
+            height: 37.15rem;
+            display: flex;
+            flex-direction: column;
+            background-color: white;
+            border-radius: 0.5rem;
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+            overflow: hidden;
+        }
+        .chatbot-container div {
+            text-align: left !important;
+        }
+    </style>
+</head>
+<body>
+    <div id="bg-image-container"></div>
+    
+    <div class="chatbot-container shadow-2xl message-bubble">
+        <!-- Header -->
+        <div class="p-4 flex items-center justify-between" style="background-color: {{ bg_color }};">
+            <div class="flex items-center space-x-3 overflow-hidden">
+                <div class="w-8 h-8 rounded-full flex-shrink-0 flex items-center justify-center" style="background-color: rgba(0,0,0,0.2);">
+                    <svg width="23px" height="23px" viewBox="0 0 24 24" fill="currentColor" color="white" xmlns="http://www.w3.org/2000/svg"><path d="M19.4003 18C19.7837 17.2499 20 16.4002 20 15.5C20 12.4624 17.5376 10 14.5 10C11.4624 10 9 12.4624 9 15.5C9 18.5376 11.4624 21 14.5 21L21 21C21 21 20 20 19.4143 18.0292M18.85 12C18.9484 11.5153 19 11.0137 19 10.5C19 6.35786 15.6421 3 11.5 3C7.35786 3 4 6.35786 4 10.5C4 11.3766 4.15039 12.2181 4.42676 13C5.50098 16.0117 3 18 3 18H9.5" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                </div>
+                <h2 class="text-lg font-semibold text-white truncate pr-2">{{ bot_name }}</h2>
+            </div>
+            <button type="button" class="p-1 hover:bg-white/20 rounded-full transition flex-shrink-0">
+                <svg width="20px" height="20px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 3V8M3 8H8M3 8L6 5.29168C7.59227 3.86656 9.69494 3 12 3C16.9706 3 21 7.02944 21 12C21 16.9706 16.9706 21 12 21C7.71683 21 4.13247 18.008 3.22302 14" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+            </button>
+        </div>
+        
+        <!-- Messages Area -->
+        <div class="flex-1 overflow-y-auto p-2 space-y-4 bg-white" id="messages-container">
+            {{ messages_html | safe }}
+        </div>
+        
+        <!-- Input Area -->
+        <div class="p-2 bg-white border-t border-gray-100">
+            <div class="flex items-center space-x-2">
+                <input type="text" placeholder="Type a message..." class="flex-1 bg-white text-gray-800 placeholder-gray-500 rounded-full px-3 py-1 focus:outline-none focus:ring-2 focus:ring-purple-500" style="color: rgb(113, 128, 150);">
+                <button class="rounded-full p-2 flex items-center justify-center transition" style="background-color: {{ bg_color }};">
+                    <svg width="22px" height="22px" fill="white" xmlns="http://www.w3.org/2000/svg"><path d="M11.5003 12H5.41872L5.24634 12.7972L4.24158 15.7986C3.69128 17.4424 3.41613 18.2643 3.61359 18.7704C3.78506 19.21 4.15335 19.5432 4.6078 19.6701C5.13111 19.8161 5.92151 19.4604 7.50231 18.7491L17.6367 14.1886C19.1797 13.4942 19.9512 13.1471 20.1896 12.6648C20.3968 12.2458 20.3968 11.7541 20.1896 11.3351C19.9512 10.8529 19.1797 10.5057 17.6367 9.81135L7.48483 5.24303C5.90879 4.53382 5.12078 4.17921 4.59799 4.32468C4.14397 4.45101 3.77572 4.78336 3.60365 5.22209C3.40551 5.72728 3.67772 6.54741 4.22215 8.18767L5.24829 11.2793C5.34179 11.561 5.38855 11.7019 5.407 11.8459C5.42338 11.9738 5.42321 12.1032 5.40651 12.231C5.38768 12.375 5.34057 12.5157 5.24634 12.7972Z" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                </button>
+            </div>
+        </div>
+    </div>
+    <script>
+        const form = document.getElementById('lead-form');
+        const submitBtn = document.getElementById('submit-btn');
+        const successMsg = document.getElementById('success-msg');
+
+        // Replace with your actual backend URL
+        const API_URL = 'https://chat.test/api/submit-lead';
+
+        if (form) {
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                
+                const formData = new FormData(form);
+                const data = {
+                    name: formData.get('name'),
+                    email: formData.get('email'),
+                    phone: formData.get('phone'),
+                    // These would normally come from the chat context
+                    case_summary: "Standalone form submission",
+                    conversation_id: null, 
+                    visitor_id: localStorage.getItem('chatbot_visitor_id') || 'standalone-visitor'
+                };
+
+                if (submitBtn) {
+                    submitBtn.disabled = true;
+                    submitBtn.innerText = 'Sending...';
+                }
+
+                try {
+                    const response = await fetch(API_URL, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json'
+                        },
+                        body: JSON.stringify(data)
+                    });
+
+                    if (response.ok) {
+                        form.classList.add('hidden');
+                        if (successMsg) successMsg.classList.remove('hidden');
+                    } else {
+                        alert('Submission failed. Please try again.');
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('Connection error.');
+                } finally {
+                    if (submitBtn) {
+                        submitBtn.disabled = false;
+                        submitBtn.innerText = 'Submit';
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+</html>
